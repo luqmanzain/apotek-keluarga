@@ -1,87 +1,84 @@
 import React, { useState } from "react";
-import { FaBars, FaSun, FaMoon } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  FaChevronRight,
+  FaChevronLeft,
+  FaUserEdit,
+} from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import { MdDashboard } from "react-icons/md";
-import { BsFillBellFill, BsFillHeartFill } from "react-icons/bs";
+import { BsFillBellFill } from "react-icons/bs";
 import { BiLineChart } from "react-icons/bi";
 import "./Layout.css";
-import { Link } from "react-router-dom";
 
 const Layout = ({ children, titlePage }) => {
-  const [darkMode, setDarkMode] = useState(false);
-  const [isOpen, setIsOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const navigate = useNavigate();
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
   };
 
   return (
-    <div className={`layout ${darkMode ? "dark" : ""}`}>
+    <div className="layout-wrapper">
       {/* Sidebar */}
-      <div className={`sidebar ${isOpen ? "open" : "closed"}`}>
-        <div className="top-section">
-          <div className="logo">
-            {isOpen ? (
-              <span className="logo-text">Apotek Keluarga</span>
-            ) : (
-              <span className="logo-text">AK</span>
-            )}
-          </div>
-          <FaBars className="toggle-btn" onClick={toggleSidebar} />
+      <aside className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
+        <div className="sidebar-header">
+          <div className="logo">{isSidebarOpen ? "Apotek Keluarga" : "AK"}</div>
+          <button className="toggle-btn" onClick={toggleSidebar}>
+            {isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
+          </button>
         </div>
 
-        <div className="menu">
+        <nav className="sidebar-menu">
+          <SidebarLink to="/dashboard" icon={<MdDashboard />} label="Dashboard" isSidebarOpen={isSidebarOpen} />
+          <SidebarLink to="/stock" icon={<BiLineChart />} label="Stock" isSidebarOpen={isSidebarOpen} />
+          <SidebarLink to="/finance" icon={<BsFillBellFill />} label="Laporan Transaksi" isSidebarOpen={isSidebarOpen} />
+        </nav>
 
-
-          <div className="menu-item active">
-            <Link to="/dashboard" className="text-decoration-none text-dark">
-              <MdDashboard className="icon" />
-              {isOpen && <span>Dashboard</span>}
-            </Link>
-          </div>
-
-          <div className="menu-item">
-            <Link to="/stock" className="text-decoration-none text-dark">
-              <BiLineChart className="icon" />
-              {isOpen && <span>Stock</span>}
-            </Link>
-          </div>
-
-          <div className="menu-item">
-            <Link to="/finance" className="text-decoration-none text-dark">
-              <BsFillBellFill className="icon" />
-              {isOpen && <span>Laporan Transaksi</span>}
-            </Link>
-          </div>
-
+        <div className="sidebar-footer">
+          <button className="logout-btn" onClick={handleLogout}>
+            <FiLogOut />
+            {isSidebarOpen && <span className="ms-2">Logout</span>}
+          </button>
         </div>
-
-        <div className="bottom-section">
-          <div className="menu-item">
-            <FiLogOut className="icon" />
-            {isOpen && <span>Logout</span>}
-          </div>
-
-          <div className="dark-mode-toggle" onClick={toggleDarkMode}>
-            {darkMode ? <FaSun className="icon" /> : <FaMoon className="icon" />}
-            {isOpen && <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>}
-          </div>
-        </div>
-      </div>
+      </aside>
 
       {/* Main Content */}
-      <div className="main-content">
-        <div className="header">
-          <h1>{titlePage}</h1>
-        </div>
-        <div className="content">{children}</div>
-      </div>
+      <main className="main-content">
+        <header className="main-header">
+          <h3 className="page-title">{titlePage}</h3>
+
+          {/* Profile shortcut (no dropdown) */}
+          <Link
+            to="/edit-profile"
+            className="profile-quicklink d-flex align-items-center gap-2 text-decoration-none text-dark"
+          >
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+              alt="Avatar"
+              className="avatar rounded-circle"
+            />
+            <span className="fw-semibold d-none d-md-inline">Admin</span>
+          </Link>
+        </header>
+
+        <hr />
+        <section className="content-area">{children}</section>
+      </main>
     </div>
   );
 };
+
+// Reusable sidebar link component
+const SidebarLink = ({ to, icon, label, isSidebarOpen }) => (
+  <Link to={to} className="sidebar-link text-decoration-none text-dark d-flex align-items-center">
+    <span className="icon">{icon}</span>
+    {isSidebarOpen && <span className="ms-2">{label}</span>}
+  </Link>
+);
 
 export default Layout;

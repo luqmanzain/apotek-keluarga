@@ -1,38 +1,48 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addStock } from "../../redux/stockSlice";
+import axios from "axios";
 
-const AddStockModal = ({ show, handleClose }) => {
-    const dispatch = useDispatch(); // 🔥 Gunakan Redux dispatch
-
+const AddStockModal = ({ show, handleClose, addStock }) => {
     const [newStock, setNewStock] = useState({
-        name: "",
-        quantity: "",
-        buyPrice: "",
-        sellPrice: ""
+        namaBarang: "",
+        stock: "",
+        hargaBeli: "",
+        hargaJual: ""
     });
+
+    const [loading, setLoading] = useState(false);
 
     // Handle perubahan input
     const handleChange = (e) => {
         setNewStock({ ...newStock, [e.target.name]: e.target.value });
     };
 
-    // Simpan data baru ke Redux Store
-    const handleSave = () => {
-        if (newStock.name && newStock.quantity && newStock.buyPrice && newStock.sellPrice) {
-            dispatch(addStock({
-                ...newStock,
-                id: Date.now() // Gunakan timestamp untuk ID unik
-            }));
+    // Simpan data baru ke API
+    const handleSave = async () => {
+        if (!newStock.namaBarang || !newStock.stock || !newStock.hargaBeli || !newStock.hargaJual) {
+            alert("Harap isi semua kolom!");
+            return;
+        }
 
-            // Reset form setelah menambahkan stok
-            setNewStock({ name: "", quantity: "", buyPrice: "", sellPrice: "" });
+        setLoading(true);
+        try {
+            const response = await axios.post("http://localhost:3000/apotek/stok/create", newStock);
+            console.log("Response dari API:", response.data);
+
+            // Tambahkan data baru ke state utama (StockTable)
+            addStock(response.data.data);
+
+            alert("Barang berhasil ditambahkan!");
+
+            // Reset form setelah sukses
+            setNewStock({ namaBarang: "", stock: "", hargaBeli: "", hargaJual: "" });
 
             // Tutup modal
             handleClose();
-        } else {
-            alert("Harap isi semua kolom!");
+        } catch (error) {
+            console.error("Gagal menambahkan stok:", error);
+            alert("Gagal menambahkan barang!");
         }
+        setLoading(false);
     };
 
     return (
@@ -50,8 +60,8 @@ const AddStockModal = ({ show, handleClose }) => {
                                 <input
                                     type="text"
                                     className="form-control"
-                                    name="name"
-                                    value={newStock.name}
+                                    name="namaBarang"
+                                    value={newStock.namaBarang}
                                     onChange={handleChange}
                                     required
                                 />
@@ -61,8 +71,8 @@ const AddStockModal = ({ show, handleClose }) => {
                                 <input
                                     type="number"
                                     className="form-control"
-                                    name="quantity"
-                                    value={newStock.quantity}
+                                    name="stock"
+                                    value={newStock.stock}
                                     onChange={handleChange}
                                     required
                                 />
@@ -72,8 +82,8 @@ const AddStockModal = ({ show, handleClose }) => {
                                 <input
                                     type="number"
                                     className="form-control"
-                                    name="buyPrice"
-                                    value={newStock.buyPrice}
+                                    name="hargaBeli"
+                                    value={newStock.hargaBeli}
                                     onChange={handleChange}
                                     required
                                 />
@@ -83,8 +93,8 @@ const AddStockModal = ({ show, handleClose }) => {
                                 <input
                                     type="number"
                                     className="form-control"
-                                    name="sellPrice"
-                                    value={newStock.sellPrice}
+                                    name="hargaJual"
+                                    value={newStock.hargaJual}
                                     onChange={handleChange}
                                     required
                                 />
@@ -95,8 +105,8 @@ const AddStockModal = ({ show, handleClose }) => {
                         <button type="button" className="btn btn-secondary" onClick={handleClose}>
                             Batal
                         </button>
-                        <button type="button" className="btn btn-primary" onClick={handleSave}>
-                            Simpan
+                        <button type="button" className="btn btn-primary" onClick={handleSave} disabled={loading}>
+                            {loading ? "Menyimpan..." : "Simpan"}
                         </button>
                     </div>
                 </div>

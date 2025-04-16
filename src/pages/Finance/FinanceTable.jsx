@@ -1,12 +1,12 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { FaPlus, FaTrash, FaPrint } from "react-icons/fa"; // 🔥 Ikon Print
-import "./finance.css"; // 🔥 Import CSS
-import FinanceSummary from "./FinanceSummary";
+import { FaPlus, FaPrint } from "react-icons/fa";
+import "./finance.css";
 import Layout from "../../layout/layout";
 import AddIncomeModal from "./AddIncomeModal";
 import AddExpenseModal from "./AddExpenseModal";
 import { addIncome, addExpense } from "../../redux/financeSlice";
+import axios from "axios";
 
 const FinanceTable = () => {
   const dispatch = useDispatch();
@@ -14,12 +14,40 @@ const FinanceTable = () => {
   const expenses = useSelector((state) => state.finance.expenses);
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
-  const [showPrintModal, setShowPrintModal] = useState(false); // 🔥 State untuk modal cetak
-  const reportRef = useRef(); // 🔥 Gunakan useRef untuk mencetak hanya elemen tertentu
+  const [showPrintModal, setShowPrintModal] = useState(false);
+  const reportRef = useRef();
 
-  // 🔥 Rentang Tanggal
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  // ⬇️ Ambil data pengeluaran dari API
+  const fetchExpensesFromAPI = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/apotek/tapeng/get");
+
+      const formattedExpenses = response.data.data
+        .filter(item => item.tanggal && item.totalHarga)
+        .map(item => ({
+          id: item.id,
+          date: new Date(item.tanggal).toISOString().split("T")[0],
+          category: item.id_kategori === 1 ? "Stok" : "Operasional",
+          itemName: `Barang ID ${item.id_stock || "-"}`,
+          quantity: item.jumlah || 0,
+          totalPrice: item.totalHarga || 0,
+        }));
+
+      formattedExpenses.forEach(expense => {
+        dispatch(addExpense(expense));
+      });
+
+    } catch (error) {
+      console.error("Gagal mengambil data pengeluaran:", error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchExpensesFromAPI();
+  }, []);
 
   const handleAddIncome = (income) => {
     dispatch(addIncome(income));
@@ -29,25 +57,6 @@ const FinanceTable = () => {
     dispatch(addExpense(expense));
   };
 
-  const handleDeleteIncome = (id) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus pemasukan ini?")) {
-      dispatch({
-        type: "finance/removeIncome",
-        payload: id,
-      });
-    }
-  };
-
-  const handleDeleteExpense = (id) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus pengeluaran ini?")) {
-      dispatch({
-        type: "finance/removeExpense",
-        payload: id,
-      });
-    }
-  };
-
-  // 🔥 Fungsi untuk mencetak laporan hanya dalam rentang tanggal
   const handlePrint = () => {
     if (!startDate || !endDate) {
       alert("Harap pilih rentang tanggal terlebih dahulu!");
@@ -60,34 +69,30 @@ const FinanceTable = () => {
     document.body.innerHTML = printContents;
     window.print();
     document.body.innerHTML = originalContents;
-    window.location.reload(); // 🔄 Refresh halaman setelah print untuk menghindari tampilan rusak
+    window.location.reload();
   };
 
-  // 🔹 Filter data berdasarkan rentang tanggal
   const filterByDate = (data) => {
-    return data.filter((item) => {
+    return data.filter(item => {
       const itemDate = new Date(item.date);
-      return (!startDate || itemDate >= new Date(startDate)) && (!endDate || itemDate <= new Date(endDate));
+      return (!startDate || itemDate >= new Date(startDate)) &&
+             (!endDate || itemDate <= new Date(endDate));
     });
   };
 
   return (
     <Layout titlePage="Manajemen Keuangan">
       <div className="container mt-4 finance-container">
-        {/* 🔹 Tombol Tambah Transaksi */}
         <button className="btn btn-success me-2" onClick={() => setShowIncomeModal(true)}>
           <FaPlus /> Tambah Pemasukan
         </button>
         <button className="btn btn-danger me-2" onClick={() => setShowExpenseModal(true)}>
           <FaPlus /> Tambah Pengeluaran
         </button>
-
-        {/* 🔹 Tombol Cetak Laporan */}
         <button className="btn btn-primary" onClick={() => setShowPrintModal(true)}>
           <FaPrint /> Cetak Laporan
         </button>
 
-        {/* 🔹 Modal Pilih Rentang Tanggal untuk Cetak */}
         {showPrintModal && (
           <div className="modal fade show d-block" tabIndex="-1">
             <div className="modal-dialog">
@@ -111,18 +116,13 @@ const FinanceTable = () => {
           </div>
         )}
 
-        {/* 🔹 Modal Tambah Pemasukan */}
         <AddIncomeModal show={showIncomeModal} handleClose={() => setShowIncomeModal(false)} addIncome={handleAddIncome} />
-
-        {/* 🔹 Modal Tambah Pengeluaran */}
         <AddExpenseModal show={showExpenseModal} handleClose={() => setShowExpenseModal(false)} addExpense={handleAddExpense} />
 
-        {/* 🔹 Bagian yang akan dicetak */}
         <div ref={reportRef} className="finance-report">
           <h3 className="mt-4 text-center">Laporan Keuangan</h3>
-         
 
-          {/* 🔹 Tabel Pemasukan */}
+          {/* Pemasukan */}
           <h4 className="mt-4">Pemasukan</h4>
           <table className="table table-striped">
             <thead className="table-success">
@@ -153,7 +153,7 @@ const FinanceTable = () => {
             </tbody>
           </table>
 
-          {/* 🔹 Tabel Pengeluaran */}
+          {/* Pengeluaran */}
           <h4 className="mt-4">Pengeluaran</h4>
           <table className="table table-striped">
             <thead className="table-danger">
@@ -174,7 +174,7 @@ const FinanceTable = () => {
                     <td>{expense.date}</td>
                     <td>{expense.category === "Stok" ? "📦 Stok" : "💰 Operasional"}</td>
                     <td>{expense.itemName}</td>
-                    <td>{expense.category === "Stok" ? expense.quantity : "-"}</td>
+                    <td>{expense.quantity}</td>
                     <td>Rp {expense.totalPrice}</td>
                   </tr>
                 ))

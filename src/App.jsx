@@ -4,20 +4,51 @@ import Login from './pages/Login/Loginpage';
 import StockTable from './pages/Stock/Stocktable';
 import Dashboard from './pages/Dashboard/dashboard';
 import FinanceTable from './pages/Finance/FinanceTable';
-
+import EditProfile from './pages/Editprofile/EditProfile';
+import ProtectedRoute from './auth/ProtectedRoute';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/stock" element={<StockTable />} />
-        <Route path="/finance" element={<FinanceTable />} />
+
+        {/* Halaman yang dilindungi oleh ProtectedRoute */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stock"
+          element={
+            <ProtectedRoute>
+              <StockTable />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/finance"
+          element={
+            <ProtectedRoute>
+              <FinanceTable />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit-profile"
+          element={
+            <ProtectedRoute>
+              <EditProfile />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );
 }
 
-
-export default App;
+export default App;
