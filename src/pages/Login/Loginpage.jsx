@@ -1,62 +1,68 @@
-import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./Loginpage.css"; // Impor file CSS kustom
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiInstance from "../../API/API";
+import "./Loginpage.css";
 
 const Login = () => {
-    const [username, setUsername] = React.useState("");
-    const [password, setPassword] = React.useState("");
-    const [error, setError] = React.useState("");
-    const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault(); // Mencegah reload halaman
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        try {
-            // Request login ke API menggunakan apiInstance
-            const response = await apiInstance.post("/auth/login", {
-                username,
-                password
-            });
+    try {
+      const response = await apiInstance.post("/auth/login", {
+        username,
+        password,
+      });
+      const token = response.data.data.token;
+      localStorage.setItem("token", token);
+      navigate("/dashboard");
+    } catch (error) {
+      setError("Login gagal. Periksa username & password!");
+    }
+  };
 
-            // Ambil token dari response
-            const token = response.data.data.token;
+  return (
+    <div className="login-page">
+      <div className="login-wrapper">
+        <div className="login-card">
+          <h2 className="login-title">Welcome Back 👋</h2>
+          <p className="login-subtitle">Please login to your account</p>
 
-            // Simpan token ke localStorage
-            localStorage.setItem("token", token);
+          {error && <div className="login-error">{error}</div>}
 
-            // Redirect ke dashboard setelah login sukses
-            navigate("/dashboard");
-
-        } catch (error) {
-            console.error("Error saat login:", error);
-            setError("Login gagal. Periksa username & password!");
-        }
-    
-};
-    return (
-        <div className="login-container">
-            <div className="login-box">
-                <h2 className="text-center">Login</h2>
-                {error && <div className="alert alert-danger">{error}</div>}
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
-                        <label className="form-label">Username </label>
-                        <input type="text" className="form-control" onChange={(e) => setUsername(e.target.value)} placeholder="username" required />
-                    </div>
-                    <div className="mb-3">
-                        <label className="form-label">Password</label>
-                        <input type="password" className="form-control" onChange={(e) => setPassword(e.target.value)} placeholder="password" required />
-                    </div>
-
-                    <button type="submit" className="btn btn-danger w-100">Login </button>
-                </form>
-
-
+          <form onSubmit={handleSubmit}>
+            <div className="login-field">
+              <label>Username</label>
+              <input
+                type="text"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
             </div>
+
+            <div className="login-field">
+              <label>Password</label>
+              <input
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <button type="submit" className="login-btn">Login</button>
+          </form>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default Login;

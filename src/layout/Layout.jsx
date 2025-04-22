@@ -1,19 +1,49 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FaChevronRight,
   FaChevronLeft,
-  FaUserEdit,
 } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import { MdDashboard } from "react-icons/md";
 import { BsFillBellFill } from "react-icons/bs";
 import { BiLineChart } from "react-icons/bi";
+import { AiOutlineShoppingCart, AiOutlineInbox } from "react-icons/ai";
 import "./Layout.css";
+
+// Mapping menu sidebar
+const sidebarMenus = [
+  {
+    to: "/dashboard",
+    label: "Dashboard",
+    icon: <MdDashboard />,
+  },
+  {
+    to: "/stock",
+    label: "Stock Product",
+    icon: <BiLineChart />,
+  },
+  {
+    to: "/transaksi-penjualan",
+    label: "Transaksi Penjualan",
+    icon: <AiOutlineShoppingCart />,
+  },
+  {
+    to: "/transaksi-pembelian",
+    label: "Transaksi Pembelian",
+    icon: <AiOutlineInbox />,
+  },
+  {
+    to: "/finance",
+    label: "Laporan Transaksi",
+    icon: <BsFillBellFill />,
+  },
+];
 
 const Layout = ({ children, titlePage }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -34,11 +64,19 @@ const Layout = ({ children, titlePage }) => {
         </div>
 
         <nav className="sidebar-menu">
-          <SidebarLink to="/dashboard" icon={<MdDashboard />} label="Dashboard" isSidebarOpen={isSidebarOpen} />
-          <SidebarLink to="/stock" icon={<BiLineChart />} label="Stock" isSidebarOpen={isSidebarOpen} />
-          <SidebarLink to="/finance" icon={<BsFillBellFill />} label="Laporan Transaksi" isSidebarOpen={isSidebarOpen} />
+          {sidebarMenus.map((menu) => (
+            <SidebarLink
+              key={menu.to}
+              to={menu.to}
+              icon={menu.icon}
+              label={menu.label}
+              isSidebarOpen={isSidebarOpen}
+              active={location.pathname === menu.to}
+            />
+          ))}
         </nav>
 
+        {/* Logout button in footer */}
         <div className="sidebar-footer">
           <button className="logout-btn" onClick={handleLogout}>
             <FiLogOut />
@@ -51,8 +89,6 @@ const Layout = ({ children, titlePage }) => {
       <main className="main-content">
         <header className="main-header">
           <h3 className="page-title">{titlePage}</h3>
-
-          {/* Profile shortcut (no dropdown) */}
           <Link
             to="/edit-profile"
             className="profile-quicklink d-flex align-items-center gap-2 text-decoration-none text-dark"
@@ -73,9 +109,14 @@ const Layout = ({ children, titlePage }) => {
   );
 };
 
-// Reusable sidebar link component
-const SidebarLink = ({ to, icon, label, isSidebarOpen }) => (
-  <Link to={to} className="sidebar-link text-decoration-none text-dark d-flex align-items-center">
+// Sidebar link reusable component
+const SidebarLink = ({ to, icon, label, isSidebarOpen, active }) => (
+  <Link
+    to={to}
+    className={`sidebar-link text-decoration-none d-flex align-items-center ${
+      active ? "active" : ""
+    }`}
+  >
     <span className="icon">{icon}</span>
     {isSidebarOpen && <span className="ms-2">{label}</span>}
   </Link>

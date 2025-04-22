@@ -1,34 +1,110 @@
-body {
-    background-color: #f8f9fa;
-    font-family: Arial, sans-serif;
-  }
-  
-  .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  
-  .login-box {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-  }
-  
-  .text-center {
-    text-align: center;
-  }
-  
-  .forgot-password {
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .forgot-password:hover {
-    text-decoration: underline;
-  }
-  
+/* SCOPED TO .login-page ONLY */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f2f6fa, #dbeafe);
+  font-family: 'Segoe UI', sans-serif;
+  padding: 20px;
+}
+
+.login-wrapper {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  padding: 40px 30px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.login-title {
+  margin-bottom: 5px;
+  font-size: 26px;
+  font-weight: 600;
+  text-align: center;
+  color: #333;
+}
+
+.login-subtitle {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #666;
+  font-size: 14px;
+}
+
+.login-field {
+  margin-bottom: 20px;
+}
+
+.login-field label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #444;
+}
+
+.login-field input {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.login-field input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.login-btn {
+  width: 100%;
+  background-color: #007bff;
+  color: #fff;
+  padding: 12px;
+  font-weight: 500;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  background-color: #0056b3;
+}
+
+.login-error {
+  background-color: #f8d7da;
+  color: #842029;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.login-extra {
+  text-align: right;
+  margin-top: 15px;
+}
+
+.login-extra a {
+  color: #007bff;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.login-extra a:hover {
+  text-decoration: underline;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

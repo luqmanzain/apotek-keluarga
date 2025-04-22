@@ -7,6 +7,10 @@ import FinanceTable from './pages/Finance/FinanceTable';
 import EditProfile from './pages/Editprofile/EditProfile';
 import ProtectedRoute from './auth/ProtectedRoute';
 
+// Import halaman baru
+import SalesTransactionPage from './pages/SalesTransactionPage';
+import PurchaseTransactionPage from './pages/PurcaseTransactionPage';
+
 function App() {
   return (
     <Router>
@@ -46,9 +50,27 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Tambahkan route untuk transaksi penjualan dan pembelian */}
+        <Route
+          path="/transaksi-penjualan"
+          element={
+            <ProtectedRoute>
+              <SalesTransactionPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transaksi-pembelian"
+          element={
+            <ProtectedRoute>
+              <PurchaseTransactionPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );
 }
 
-export default App;
+export default App;
